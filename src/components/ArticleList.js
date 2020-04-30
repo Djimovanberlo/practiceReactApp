@@ -1,40 +1,44 @@
 // src/components/ArticleList.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ArticleCard from "./ArticleCard";
-
-const all_Articles = [
-  {
-    id: 1,
-    title: "What is React all about?",
-    body:
-      "React is all about one-way data flow, the Virtual DOM, and transpiling JSX.",
-  },
-  {
-    id: 2,
-    title: "A lovely kid",
-    body: "In fact, a kid is also the name of a baby goat!",
-  },
-  {
-    id: 3,
-    title: "On placeholder image URLs",
-    body:
-      "So yeah, you won't be able to look these images up. They're placeholders",
-  },
-];
+// import Timeout from "await-timeout";
+import axios from "axios";
+import Timeout, { set } from "await-timeout";
 
 const ArticleList = () => {
   const [hidden, setHidden] = useState(false);
+  const [articles, set_articles] = useState();
+
+  useEffect(() => {
+    const doSomeDataFetching = async () => {
+      console.log("I'm gonna fetch some data!");
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/posts?_limit=5"
+      );
+      await Timeout.set(3000);
+      console.log("Got back:", response);
+      console.log("articles");
+      set_articles(response.data);
+      console.log("Again articles?");
+    };
+    doSomeDataFetching();
+  }, []);
+
   const toggleHide = () => {
     setHidden(!hidden);
   };
 
-  const articleCards = all_Articles.map((article, index) => (
-    <ArticleCard
-      number={index + 1}
-      title={article.title}
-      content={article.body}
-    />
-  ));
+  const articleCards = articles ? (
+    articles.map((article, index) => (
+      <ArticleCard
+        number={index + 1}
+        title={article.title}
+        content={article.body}
+      />
+    ))
+  ) : (
+    <p>loading...</p>
+  );
 
   const buttonText = hidden ? "Show articles" : "Hide articles";
 
